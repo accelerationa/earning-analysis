@@ -1,15 +1,18 @@
 
-import json
 from pprint import pprint
 import re
+from pandas import *
+from numpy import *
+import json
+
 
 
 
 def main():
     data = get_data()
+    sp500_data = get_sp500_data(data)
 
-    total_numbers(data)
-    turning_point_analyze(data)
+    turning_point_analyze(sp500_data)
 
 def total_numbers(data):
     true = 0
@@ -72,6 +75,32 @@ def get_data():
             filtered_data[key] = ''.join(value)
     
     return filtered_data
+
+
+def get_sp500_data(data):
+    tickers = get_sp500_tickers()
+
+    filtered_data = {}
+
+    for ticker in tickers:
+        if not data.get(ticker):
+            print 'WARNING: unbale to find data for ' + ticker
+        else: 
+            filtered_data[ticker] = data.get(ticker)
+    return filtered_data
+
+
+def get_sp500_tickers():
+    Tickers=read_table('sp500_tickers.txt')
+    Ticker=transpose(array(Tickers)).tolist()
+    Ticker=Ticker[0]
+
+    processed_tickers = []
+
+    for ticker in Ticker:
+        processed_tickers.append(ticker[:ticker.find(',')])
+
+    return processed_tickers
 
 
 if __name__ == "__main__":
