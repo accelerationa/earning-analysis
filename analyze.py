@@ -10,9 +10,7 @@ import json
 
 def main():
     data = get_data()
-    sp500_data = get_sp500_data(data)
-
-    turning_point_analyze(sp500_data)
+    get_upcoming_earning_data(data)
 
 def total_numbers(data):
     true = 0
@@ -101,7 +99,45 @@ def get_sp500_tickers():
         processed_tickers.append(ticker[:ticker.find(',')])
 
     return processed_tickers
+ 
+def filter_upcoming_earning_data_with_continuous_success_number(upcoming_earning_data, length):
 
+    filtered_data = {}
+
+    for key, value_string in upcoming_earning_data.iteritems():    
+        if len(value_string) >= length and 'T'*length == value_string[-length:]:
+            filtered_data[key] = value_string
+    
+    return filtered_data
+    
+
+def get_upcoming_earning_data(data):
+    tickers = get_upcoming_earning_tickers()
+
+    upcoming_earning_data = {}
+
+    for ticker in tickers:
+        if not data.get(ticker):
+            print 'WARNING: unbale to find data for ' + ticker
+        else: 
+            upcoming_earning_data[ticker] = data.get(ticker)
+
+    text = raw_input("Input expected length: ")  # Python 2
+    qualified_data = filter_upcoming_earning_data_with_continuous_success_number(upcoming_earning_data, int(text))
+    
+    pprint(qualified_data, width=1)
+    return qualified_data
+
+def get_upcoming_earning_tickers():
+    Tickers=read_table('upcoming_earnings.txt')
+    Ticker=transpose(array(Tickers)).tolist()
+
+    f = open("upcoming_earnings.txt", "r") 
+    ticker_string = f.read()
+    f.close()
+    tickers = ticker_string.split(',')
+
+    return tickers
 
 if __name__ == "__main__":
     main()
